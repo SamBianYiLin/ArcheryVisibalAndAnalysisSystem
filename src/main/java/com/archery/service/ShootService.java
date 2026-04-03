@@ -42,6 +42,7 @@ public class ShootService {
 
         Random random = new Random();
 
+        //  此处采用随机生成数据，若之后接入传感器或计算机视觉识别结果，可按照实际结果记录
         int score = 6 + random.nextInt(5); // 6~10环
         String mainMuscle = muscles.get(random.nextInt(muscles.size()));
 
@@ -99,6 +100,7 @@ public class ShootService {
             List<String> synergyMusclesCn = (List<String>) result.get("synergyMusclesCn");
             record.setSynergyMuscles(String.join("、", synergyMusclesCn));
 
+            //  保存结果为json文件，后续接入传感器后，可将传感器数据转为json文件以进行数据记录与处理
             record.setRawJson(objectMapper.writeValueAsString(result));
             record.setRemark((String) result.get("analysis"));
             record.setCreatedAt(LocalDateTime.now());

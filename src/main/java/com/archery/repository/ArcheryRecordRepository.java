@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface ArcheryRecordRepository extends JpaRepository<ArcheryRecord, Long> {
     List<ArcheryRecord> findByAthleteIdOrderByCreatedAtDesc(Long athleteId);
+
+    void deleteByAthleteId(Long athleteId);
 }

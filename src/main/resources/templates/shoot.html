@@ -7,10 +7,26 @@
 </head>
 <body>
 <div class="container">
-    <h1>射箭模拟页面</h1>
+    <div class="page-header">
+        <h1>射箭模拟页面</h1>
+        <a th:if="${!isAdmin}" th:href="@{/auth/profile}" class="user-chip" th:text="${currentAthleteName}">运动员</a>
+        <span th:if="${isAdmin}" class="user-chip">管理员</span>
+    </div>
 
     <div class="top-bar">
-        <a href="/athletes" class="btn back-btn">返回运动员管理</a>
+        <a th:href="${backUrl}" class="btn back-btn">返回</a>
+    </div>
+
+    <div id="randomDataNotice" class="notice-popup hidden" role="dialog" aria-live="polite">
+        <div class="notice-popup-header">
+            <strong>测试说明</strong>
+            <button type="button" class="notice-close" id="noticeCloseBtn" aria-label="关闭提示">×</button>
+        </div>
+        <p>当前页面生成的数据为随机模拟内容，并非真实监测数据，仅用于测试与演示。</p>
+        <div class="notice-actions">
+            <button type="button" class="btn secondary-btn" id="noticeKeepBtn">保留显示</button>
+            <button type="button" class="btn back-btn" id="noticeHideBtn">关闭</button>
+        </div>
     </div>
 
     <div class="shoot-layout">
@@ -104,6 +120,7 @@
     </div>
 </div>
 
+<script src="/js/main.js"></script>
 <script th:inline="javascript">
     const athleteId = [[${athlete.id}]];
     let latestResult = null;
@@ -117,6 +134,24 @@
     const synergyMusclesText = document.getElementById("synergyMusclesText");
     const analysisText = document.getElementById("analysisText");
     const activationList = document.getElementById("activationList");
+    const randomDataNotice = document.getElementById("randomDataNotice");
+    const noticeCloseBtn = document.getElementById("noticeCloseBtn");
+    const noticeHideBtn = document.getElementById("noticeHideBtn");
+    const noticeKeepBtn = document.getElementById("noticeKeepBtn");
+
+    function showRandomDataNotice() {
+        randomDataNotice.classList.remove("hidden");
+    }
+
+    function hideRandomDataNotice() {
+        randomDataNotice.classList.add("hidden");
+    }
+
+    noticeCloseBtn.addEventListener("click", hideRandomDataNotice);
+    noticeHideBtn.addEventListener("click", hideRandomDataNotice);
+    noticeKeepBtn.addEventListener("click", function () {
+        randomDataNotice.classList.remove("hidden");
+    });
 
     function resetMuscleHighlight() {
         const ids = ["deltoid", "biceps", "triceps", "forearm_flexors", "latissimus_dorsi"];
@@ -157,6 +192,7 @@
     }
 
     startBtn.addEventListener("click", async function () {
+        showRandomDataNotice();
         startBtn.disabled = true;
         saveBtn.disabled = true;
         loadingText.innerText = "正在分析中，请稍候...";
@@ -181,7 +217,7 @@
 
     saveBtn.addEventListener("click", async function () {
         if (!latestResult) {
-            alert("请先进行一次分析");
+            appToast("请先进行一次分析", "error", 1400);
             return;
         }
 
@@ -195,10 +231,10 @@
             });
 
             const text = await response.text();
-            alert(text);
-            location.reload();
+            appToast(text || "保存成功", "success", 1400);
+            setTimeout(() => location.reload(), 900);
         } catch (e) {
-            alert("保存失败");
+            appToast("保存失败", "error", 1500);
             console.error(e);
         }
     });

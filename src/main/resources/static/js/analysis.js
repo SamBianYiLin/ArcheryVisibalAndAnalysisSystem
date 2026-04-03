@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
     initFadeInCards();
     initNumberAnimation();
     beautifyTimeCells();
+    initScoreTrendChart();
 });
 
 function initFadeInCards() {
@@ -71,5 +72,55 @@ function beautifyTimeCells() {
         if (!text) return;
 
         cell.textContent = text.replace("T", " ");
+    });
+}
+
+function initScoreTrendChart() {
+    const chartEl = document.getElementById("scoreTrendChart");
+    if (!chartEl || typeof Chart === "undefined") {
+        return;
+    }
+
+    const labels = Array.isArray(window.analysisChartLabels) ? window.analysisChartLabels : [];
+    const values = Array.isArray(window.analysisChartValues) ? window.analysisChartValues : [];
+    if (!labels.length || !values.length) {
+        return;
+    }
+
+    new Chart(chartEl, {
+        type: "line",
+        data: {
+            labels,
+            datasets: [{
+                label: "环数",
+                data: values,
+                borderColor: "#4f46e5",
+                backgroundColor: "rgba(79, 70, 229, 0.12)",
+                borderWidth: 2,
+                pointRadius: 3,
+                pointBackgroundColor: "#4338ca",
+                pointHoverRadius: 5,
+                fill: true,
+                tension: 0.35
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true
+                }
+            },
+            scales: {
+                y: {
+                    min: 0,
+                    max: 10,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
     });
 }

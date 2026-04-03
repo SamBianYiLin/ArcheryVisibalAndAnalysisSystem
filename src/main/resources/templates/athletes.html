@@ -7,7 +7,13 @@
 </head>
 <body>
 <div class="container">
-    <h1>运动员管理</h1>
+    <div class="page-header">
+        <div>
+            <h1>运动员管理</h1>
+            <p class="subtitle">管理员可维护运动员账号与基础档案</p>
+        </div>
+        <span class="user-chip">管理员</span>
+    </div>
 
     <div class="top-bar">
         <a href="/" class="btn back-btn">返回首页</a>
@@ -89,7 +95,6 @@
                 <td th:text="${a.levelName}"></td>
                 <td th:text="${a.remark}"></td>
                 <td class="action-cell">
-                    <a th:href="@{'/shoot/' + ${a.id}}" class="btn small-btn">开始射箭</a>
                     <a th:href="@{'/athletes/delete/' + ${a.id}}" class="btn small-btn danger-btn"
                        onclick="return confirm('确定删除该运动员吗？');">删除</a>
                 </td>
@@ -98,5 +103,12 @@
         </table>
     </div>
 </div>
+<script src="/js/main.js"></script>
+<script th:inline="javascript">
+    const athleteAddSuccess = /*[[${success}]]*/ null;
+    if (athleteAddSuccess === "added") {
+        appToast("新增运动员成功", "success", 1500);
+    }
+</script>
 </body>
 </html>

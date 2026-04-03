@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>射箭分析系统</title>
@@ -7,28 +7,54 @@
 </head>
 <body>
 <div class="container">
-    <h1>射箭分析系统</h1>
-    <p class="subtitle">Archery Analysis System</p>
+    <div class="page-header">
+        <div>
+            <h1>射箭分析系统</h1>
+            <p class="subtitle">Archery Analysis System</p>
+        </div>
+        <div class="top-bar">
+            <a th:if="${!isAdmin}" th:href="@{/auth/profile}" class="user-chip" th:text="${currentAthleteName}">运动员</a>
+            <span th:if="${isAdmin}" class="user-chip">管理员</span>
+            <a href="/auth/password" class="btn back-btn">修改密码</a>
+            <form th:action="@{/logout}" method="post" style="display:inline;">
+                <button type="submit" class="btn danger-btn">退出登录</button>
+            </form>
+        </div>
+    </div>
 
     <div class="card-group">
-        <a class="card-link" href="/athletes">
+        <a class="card-link" href="/athletes" th:if="${isAdmin}">
             <div class="card">
                 <h2>运动员管理</h2>
                 <p>新增、查看、删除运动员信息</p>
             </div>
         </a>
 
-        <a class="card-link" href="/athletes">
+        <a class="card-link" th:if="${!isAdmin}" th:href="@{'/shoot/' + ${currentAthleteId}}">
             <div class="card">
                 <h2>开始射箭</h2>
-                <p>先选择运动员，再进入射箭模拟页面</p>
+                <p>进入你的个人射箭模拟页面</p>
             </div>
         </a>
 
-        <a class="card-link" href="/analysis">
+        <a class="card-link" href="/analysis" th:if="${isAdmin}">
             <div class="card">
                 <h2>历史分析</h2>
                 <p>查看运动员历史射箭数据与统计分析</p>
+            </div>
+        </a>
+
+        <a class="card-link" th:if="${!isAdmin}" th:href="@{'/analysis/' + ${currentAthleteId}}">
+            <div class="card">
+                <h2>历史分析</h2>
+                <p>查看你的个人历史射箭数据与统计分析</p>
+            </div>
+        </a>
+
+        <a class="card-link" th:if="${!isAdmin}" th:href="@{/auth/profile}">
+            <div class="card">
+                <h2>个人信息</h2>
+                <p>查看并修改你的基础资料</p>
             </div>
         </a>
     </div>

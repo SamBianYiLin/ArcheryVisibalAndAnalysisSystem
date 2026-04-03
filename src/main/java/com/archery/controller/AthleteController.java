@@ -17,16 +17,17 @@ public class AthleteController {
     }
 
     @GetMapping
-    public String listAthletes(Model model) {
+    public String listAthletes(@RequestParam(value = "success", required = false) String success, Model model) {
         model.addAttribute("athletes", athleteService.findAll());
         model.addAttribute("athlete", new Athlete());
+        model.addAttribute("success", success);
         return "athletes";
     }
 
     @PostMapping("/add")
     public String addAthlete(@ModelAttribute Athlete athlete) {
         athleteService.save(athlete);
-        return "redirect:/athletes";
+        return "redirect:/athletes?success=added";
     }
 
     @GetMapping("/delete/{id}")

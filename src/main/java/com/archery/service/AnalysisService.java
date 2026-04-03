@@ -4,6 +4,7 @@ import com.archery.entity.ArcheryRecord;
 import com.archery.repository.ArcheryRecordRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -17,6 +18,7 @@ public class AnalysisService {
 
     public Map<String, Object> getAnalysisByAthleteId(Long athleteId) {
         List<ArcheryRecord> records = archeryRecordRepository.findByAthleteIdOrderByCreatedAtDesc(athleteId);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd HH:mm");
 
         Map<String, Object> result = new HashMap<>();
         result.put("records", records);
@@ -27,6 +29,9 @@ public class AnalysisService {
             result.put("bestScore", 0);
             result.put("tenRate", 0.0);
             result.put("muscleStats", new LinkedHashMap<String, Integer>());
+            result.put("scoreList", List.of());
+            result.put("scoreTrendLabels", List.of());
+            result.put("scoreTrendValues", List.of());
             return result;
         }
 
@@ -66,7 +71,18 @@ public class AnalysisService {
                 .map(ArcheryRecord::getScore)
                 .toList();
 
+        List<ArcheryRecord> orderedRecords = new ArrayList<>(records);
+        Collections.reverse(orderedRecords);
+        List<String> scoreTrendLabels = orderedRecords.stream()
+                .map(r -> r.getCreatedAt() == null ? "--" : r.getCreatedAt().format(formatter))
+                .toList();
+        List<Integer> scoreTrendValues = orderedRecords.stream()
+                .map(ArcheryRecord::getScore)
+                .toList();
+
         result.put("scoreList", scoreList);
+        result.put("scoreTrendLabels", scoreTrendLabels);
+        result.put("scoreTrendValues", scoreTrendValues);
 
         return result;
     }

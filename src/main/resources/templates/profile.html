@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>个人信息</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="container">
+    <div class="page-header">
+        <div>
+            <h1>个人信息</h1>
+            <p class="subtitle">查看并更新你的个人资料</p>
+        </div>
+        <a class="user-chip" th:text="${athlete.name}">运动员</a>
+    </div>
+
+    <div class="top-bar">
+        <a href="/" class="btn back-btn">返回首页</a>
+        <a href="/auth/password" class="btn secondary-btn">修改密码</a>
+    </div>
+
+    <div class="form-card">
+        <h2>账号与档案</h2>
+        <div th:if="${success}" th:text="${success}" class="msg-success"></div>
+
+        <form th:action="@{/auth/profile}" method="post" class="athlete-form">
+            <div class="form-row">
+                <label>账号</label>
+                <input type="text" th:value="${username}" disabled>
+            </div>
+            <div class="form-row">
+                <label>系统编号</label>
+                <input type="text" th:value="${athlete.athleteNo}" disabled>
+            </div>
+            <div class="form-row">
+                <label>姓名</label>
+                <input type="text" name="name" th:value="${athlete.name}" required>
+            </div>
+            <div class="form-row">
+                <label>性别</label>
+                <select name="gender">
+                    <option value="男" th:selected="${athlete.gender == '男'}">男</option>
+                    <option value="女" th:selected="${athlete.gender == '女'}">女</option>
+                    <option value="其他" th:selected="${athlete.gender == '其他'}">其他</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label>年龄</label>
+                <input type="number" name="age" th:value="${athlete.age}">
+            </div>
+            <div class="form-row">
+                <label>身高(cm)</label>
+                <input type="number" step="0.1" name="height" th:value="${athlete.height}">
+            </div>
+            <div class="form-row">
+                <label>臂展(cm)</label>
+                <input type="number" step="0.1" name="armSpan" th:value="${athlete.armSpan}">
+            </div>
+            <div class="form-row">
+                <label>级别</label>
+                <input type="text" name="levelName" th:value="${athlete.levelName}">
+            </div>
+            <div class="form-row" style="grid-column: span 2;">
+                <label>备注</label>
+                <textarea name="remark" rows="3" th:text="${athlete.remark}"></textarea>
+            </div>
+            <button type="submit" class="btn primary-btn">保存资料</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>
+

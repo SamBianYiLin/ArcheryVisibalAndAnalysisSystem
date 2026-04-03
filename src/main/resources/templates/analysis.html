@@ -4,20 +4,23 @@
     <meta charset="UTF-8">
     <title>运动员历史分析</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" th:href="@{/css/analysis.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-<div class="analysis-page">
-    <div class="container">
+<div class="container">
         <div class="page-header">
             <div class="page-title-box">
                 <h1>运动员历史分析</h1>
                 <p>查看运动员历史成绩、肌群分布与详细训练记录</p>
             </div>
 
+            <a th:if="${!isAdmin}" th:href="@{/auth/profile}" class="user-chip" th:text="${currentAthleteName}">运动员</a>
+            <span th:if="${isAdmin}" class="user-chip">管理员</span>
+
             <div class="top-bar">
-                <a th:href="@{/analysis}" class="btn back-btn">返回运动员选择</a>
-                <a th:href="@{/athletes}" class="btn back-btn">返回运动员管理</a>
+                <a th:if="${isAdmin}" th:href="@{/analysis}" class="btn back-btn">返回运动员选择</a>
+                <a th:if="${isAdmin}" th:href="@{/athletes}" class="btn back-btn">返回运动员管理</a>
+                <a th:if="${!isAdmin}" th:href="@{/}" class="btn back-btn">返回首页</a>
             </div>
         </div>
 
@@ -78,6 +81,21 @@
                 <div class="stat-label">10环率</div>
                 <div class="stat-value number-animate" th:text="${analysisData.tenRate + '%'}">0%</div>
                 <div class="stat-desc">高分命中占比</div>
+            </div>
+        </div>
+
+        <div class="panel-card chart-panel">
+            <div class="section-header">
+                <h2>环数趋势折线图</h2>
+                <span class="section-badge">Score Trend</span>
+            </div>
+
+            <div class="empty-box" th:if="${analysisData.totalCount == 0}">
+                暂无历史记录，无法生成环数趋势图。
+            </div>
+
+            <div class="chart-wrap" th:if="${analysisData.totalCount > 0}">
+                <canvas id="scoreTrendChart"></canvas>
             </div>
         </div>
 
@@ -148,9 +166,13 @@
                 </table>
             </div>
         </div>
-    </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script th:inline="javascript">
+    window.analysisChartLabels = /*[[${analysisData.scoreTrendLabels}]]*/ [];
+    window.analysisChartValues = /*[[${analysisData.scoreTrendValues}]]*/ [];
+</script>
 <script th:src="@{/js/analysis.js}"></script>
 </body>
 </html>

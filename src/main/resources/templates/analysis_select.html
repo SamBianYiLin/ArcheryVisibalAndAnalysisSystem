@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>选择运动员分析</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="container">
+    <h1>历史分析</h1>
+
+    <div class="top-bar">
+        <a href="/" class="btn back-btn">返回首页</a>
+    </div>
+
+    <div class="table-card">
+        <h2>请选择要分析的运动员</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>编号</th>
+                <th>姓名</th>
+                <th>性别</th>
+                <th>年龄</th>
+                <th>级别</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="a : ${athletes}">
+                <td th:text="${a.id}"></td>
+                <td th:text="${a.athleteNo}"></td>
+                <td th:text="${a.name}"></td>
+                <td th:text="${a.gender}"></td>
+                <td th:text="${a.age}"></td>
+                <td th:text="${a.levelName}"></td>
+                <td>
+                    <a th:href="@{'/analysis/' + ${a.id}}" class="btn small-btn">查看分析</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

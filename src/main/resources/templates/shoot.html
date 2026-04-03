@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>射箭模拟页面</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="container">
+    <h1>射箭模拟页面</h1>
+
+    <div class="top-bar">
+        <a href="/athletes" class="btn back-btn">返回运动员管理</a>
+    </div>
+
+    <div class="shoot-layout">
+        <!-- 左侧：运动员信息 -->
+        <div class="panel-card athlete-panel">
+            <h2>当前运动员</h2>
+            <p><strong>ID：</strong><span th:text="${athlete.id}"></span></p>
+            <p><strong>编号：</strong><span th:text="${athlete.athleteNo}"></span></p>
+            <p><strong>姓名：</strong><span th:text="${athlete.name}"></span></p>
+            <p><strong>性别：</strong><span th:text="${athlete.gender}"></span></p>
+            <p><strong>年龄：</strong><span th:text="${athlete.age}"></span></p>
+            <p><strong>级别：</strong><span th:text="${athlete.levelName}"></span></p>
+
+            <div class="action-group">
+                <button class="btn primary-btn" id="startBtn">开始分析</button>
+                <button class="btn save-btn" id="saveBtn" disabled>保存本次结果</button>
+            </div>
+
+            <div id="loadingText" class="loading-text"></div>
+        </div>
+
+        <!-- 中间：靶环 -->
+        <div class="panel-card target-panel">
+            <h2>靶环结果</h2>
+            <div class="target">
+                <div class="ring ring-10">
+                    <div class="ring ring-9">
+                        <div class="ring ring-8">
+                            <div class="ring ring-7">
+                                <div class="ring ring-6">
+                                    <div class="score-text" id="scoreText">-- 环</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧：肌肉示意 -->
+        <div class="panel-card muscle-panel">
+            <h2>肌肉发力示意</h2>
+            <div class="muscle-diagram">
+                <div class="muscle-block" id="deltoid">三角肌</div>
+                <div class="muscle-block" id="biceps">肱二头肌</div>
+                <div class="muscle-block" id="triceps">肱三头肌</div>
+                <div class="muscle-block" id="forearm_flexors">前臂屈肌群</div>
+                <div class="muscle-block" id="latissimus_dorsi">背阔肌</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 分析结果 -->
+    <div class="panel-card result-panel">
+        <h2>本次分析结果</h2>
+        <p><strong>主发力肌肉：</strong><span id="mainMuscleText">--</span></p>
+        <p><strong>协同发力肌肉：</strong><span id="synergyMusclesText">--</span></p>
+        <p><strong>文字分析：</strong><span id="analysisText">--</span></p>
+
+        <div class="activation-box">
+            <h3>肌肉激活程度</h3>
+            <ul id="activationList"></ul>
+        </div>
+    </div>
+
+    <!-- 历史记录 -->
+    <div class="panel-card table-card">
+        <h2>历史记录</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>环数</th>
+                <th>主发力肌肉</th>
+                <th>协同发力肌肉</th>
+                <th>备注</th>
+                <th>时间</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="r : ${historyList}">
+                <td th:text="${r.id}"></td>
+                <td th:text="${r.score}"></td>
+                <td th:text="${r.mainMuscle}"></td>
+                <td th:text="${r.synergyMuscles}"></td>
+                <td th:text="${r.remark}"></td>
+                <td th:text="${#temporals.format(r.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    const athleteId = [[${athlete.id}]];
+    let latestResult = null;
+
+    const startBtn = document.getElementById("startBtn");
+    const saveBtn = document.getElementById("saveBtn");
+    const loadingText = document.getElementById("loadingText");
+
+    const scoreText = document.getElementById("scoreText");
+    const mainMuscleText = document.getElementById("mainMuscleText");
+    const synergyMusclesText = document.getElementById("synergyMusclesText");
+    const analysisText = document.getElementById("analysisText");
+    const activationList = document.getElementById("activationList");
+
+    function resetMuscleHighlight() {
+        const ids = ["deltoid", "biceps", "triceps", "forearm_flexors", "latissimus_dorsi"];
+        ids.forEach(id => {
+            const el = document.getElementById(id);
+            el.classList.remove("main-active");
+            el.classList.remove("synergy-active");
+        });
+    }
+
+    function showResult(data) {
+        scoreText.innerText = data.score + " 环";
+        mainMuscleText.innerText = data.mainMuscleCn;
+        synergyMusclesText.innerText = data.synergyMusclesCn.join("、");
+        analysisText.innerText = data.analysis;
+
+        resetMuscleHighlight();
+
+        document.getElementById(data.mainMuscle).classList.add("main-active");
+        data.synergyMuscles.forEach(m => {
+            document.getElementById(m).classList.add("synergy-active");
+        });
+
+        activationList.innerHTML = "";
+        const cnMap = {
+            deltoid: "三角肌",
+            biceps: "肱二头肌",
+            triceps: "肱三头肌",
+            forearm_flexors: "前臂屈肌群",
+            latissimus_dorsi: "背阔肌"
+        };
+
+        for (const key in data.muscleActivation) {
+            const li = document.createElement("li");
+            li.innerText = cnMap[key] + "： " + data.muscleActivation[key];
+            activationList.appendChild(li);
+        }
+    }
+
+    startBtn.addEventListener("click", async function () {
+        startBtn.disabled = true;
+        saveBtn.disabled = true;
+        loadingText.innerText = "正在分析中，请稍候...";
+        latestResult = null;
+
+        try {
+            const response = await fetch("/shoot/simulate/" + athleteId, {
+                method: "POST"
+            });
+            const data = await response.json();
+            latestResult = data;
+            showResult(data);
+            loadingText.innerText = "分析完成";
+            saveBtn.disabled = false;
+        } catch (e) {
+            loadingText.innerText = "分析失败，请重试";
+            console.error(e);
+        } finally {
+            startBtn.disabled = false;
+        }
+    });
+
+    saveBtn.addEventListener("click", async function () {
+        if (!latestResult) {
+            alert("请先进行一次分析");
+            return;
+        }
+
+        try {
+            const response = await fetch("/shoot/save/" + athleteId, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(latestResult)
+            });
+
+            const text = await response.text();
+            alert(text);
+            location.reload();
+        } catch (e) {
+            alert("保存失败");
+            console.error(e);
+        }
+    });
+</script>
+</body>
+</html>

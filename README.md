@@ -103,3 +103,32 @@ archery-system/
 │   │       └── application.yml / application.properties
 ├── pom.xml
 └── README.md
+```
+
+---
+
+## 使用及环境变量配置
+
+1. 使用maven的package打为jar包，传输到服务器指定目录
+2. 在服务器jar包目录下，创建环境变量文件
+```bash
+touch /your/jar/root/.env
+```
+3. 创建好环境变量文件后，使用vim或其他文本编辑器打开.env文件
+```bash
+vim /your/jar/root/.env
+```
+4. 分别配置如下三项内容(需要将url、用户名与密码改为对应数据库的真实信息)：
+```bash
+DB_URL:"jdbc:mysql://your.databse.url:port/databasename?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false"
+DB_USERNAME:"username"
+DB_PASSWORD:"password"  
+```
+5. 配置好环境变量后，即可启动项目
+```bash
+set -a
+source /your/jar/root/.env
+set +a
+java -jar nameoffile.jar
+```
+6. 观察有无报错信息，若无报错，即可正常运行

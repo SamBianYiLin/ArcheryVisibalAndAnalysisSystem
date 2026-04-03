@@ -1,97 +1,156 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <title>运动员历史分析</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>射箭数据分析</title>
-    <link rel="stylesheet" href="/css/analysis.css">
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/analysis.css}">
 </head>
 <body>
-<div class="container">
-    <div class="page-header">
-        <div class="header-left">
-            <h1>射箭数据分析面板</h1>
-            <p>查看运动员训练记录、成绩趋势与肌肉状态统计</p>
-        </div>
-        <div class="header-right">
-            <input id="athleteIdInput" class="input-box" type="number" placeholder="请输入运动员 ID">
-            <button class="btn btn-primary" onclick="loadAnalysis()">加载分析</button>
-        </div>
-    </div>
+<div class="analysis-page">
+    <div class="container">
+        <div class="page-header">
+            <div class="page-title-box">
+                <h1>运动员历史分析</h1>
+                <p>查看运动员历史成绩、肌群分布与详细训练记录</p>
+            </div>
 
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-title">总记录数</div>
-            <div class="stat-value" id="totalCount">0</div>
-            <div class="stat-sub">累计训练记录</div>
+            <div class="top-bar">
+                <a th:href="@{/analysis}" class="btn back-btn">返回运动员选择</a>
+                <a th:href="@{/athletes}" class="btn back-btn">返回运动员管理</a>
+            </div>
         </div>
-        <div class="stat-card">
-            <div class="stat-title">平均成绩</div>
-            <div class="stat-value" id="avgScore">0.0</div>
-            <div class="stat-sub">整体表现均值</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-title">最高成绩</div>
-            <div class="stat-value" id="bestScore">0</div>
-            <div class="stat-sub">历史最佳成绩</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-title">10环率</div>
-            <div class="stat-value" id="tenRate">0%</div>
-            <div class="stat-sub">命中高分占比</div>
-        </div>
-    </div>
 
-    <div class="content-grid">
-        <div class="card">
-            <div class="card-header">
-                <div>
-                    <div class="card-title">成绩变化趋势</div>
-                    <div class="card-desc">最近训练记录分数折线图</div>
+        <div class="panel-card athlete-card">
+            <div class="section-header">
+                <h2>运动员信息</h2>
+                <span class="section-badge">Athlete Profile</span>
+            </div>
+
+            <div class="athlete-info-grid">
+                <div class="info-item">
+                    <span class="info-label">ID</span>
+                    <span class="info-value" th:text="${athlete.id}"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">编号</span>
+                    <span class="info-value" th:text="${athlete.athleteNo}"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">姓名</span>
+                    <span class="info-value" th:text="${athlete.name}"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">性别</span>
+                    <span class="info-value" th:text="${athlete.gender}"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">年龄</span>
+                    <span class="info-value" th:text="${athlete.age}"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">级别</span>
+                    <span class="info-value" th:text="${athlete.levelName}"></span>
                 </div>
             </div>
-            <div id="scoreChart" class="chart-box"></div>
         </div>
 
-        <div class="card">
-            <div class="card-header">
-                <div>
-                    <div class="card-title">肌肉状态分布</div>
-                    <div class="card-desc">训练过程中肌肉状态统计</div>
-                </div>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">总射箭次数</div>
+                <div class="stat-value number-animate" th:text="${analysisData.totalCount}">0</div>
+                <div class="stat-desc">累计训练记录</div>
             </div>
-            <div id="muscleChart" class="chart-box"></div>
-        </div>
-    </div>
 
-    <div class="card table-card">
-        <div class="card-header">
-            <div>
-                <div class="card-title">训练记录明细</div>
-                <div class="card-desc">按时间倒序展示运动员训练数据</div>
+            <div class="stat-card">
+                <div class="stat-label">平均环数</div>
+                <div class="stat-value number-animate" th:text="${analysisData.avgScore}">0</div>
+                <div class="stat-desc">整体平均水平</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">最好成绩</div>
+                <div class="stat-value number-animate" th:text="${analysisData.bestScore}">0</div>
+                <div class="stat-desc">历史最佳表现</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">10环率</div>
+                <div class="stat-value number-animate" th:text="${analysisData.tenRate + '%'}">0%</div>
+                <div class="stat-desc">高分命中占比</div>
             </div>
         </div>
-        <div class="table-wrap">
-            <table>
-                <thead>
-                <tr>
-                    <th>序号</th>
-                    <th>成绩</th>
-                    <th>肌肉状态</th>
-                    <th>训练时间</th>
-                </tr>
-                </thead>
-                <tbody id="recordTableBody">
-                <tr>
-                    <td colspan="4" class="empty-box">请输入运动员 ID 后加载数据</td>
-                </tr>
-                </tbody>
-            </table>
+
+        <div class="panel-card">
+            <div class="section-header">
+                <h2>主发力肌群统计</h2>
+                <span class="section-badge">Muscle Stats</span>
+            </div>
+
+            <div class="empty-box" th:if="${analysisData.totalCount == 0}">
+                暂无历史记录，无法分析。
+            </div>
+
+            <div class="table-wrap" th:if="${analysisData.totalCount > 0}">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>主发力肌肉</th>
+                        <th>出现次数</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="entry : ${analysisData.muscleStats.entrySet()}">
+                        <td th:text="${entry.key}"></td>
+                        <td>
+                            <span class="count-badge" th:text="${entry.value}"></span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="panel-card table-card">
+            <div class="section-header">
+                <h2>历史记录明细</h2>
+                <span class="section-badge">History Records</span>
+            </div>
+
+            <div class="empty-box" th:if="${analysisData.totalCount == 0}">
+                暂无历史记录。
+            </div>
+
+            <div class="table-wrap" th:if="${analysisData.totalCount > 0}">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>环数</th>
+                        <th>主发力肌肉</th>
+                        <th>协同发力肌肉</th>
+                        <th>备注</th>
+                        <th>时间</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="r : ${analysisData.records}">
+                        <td th:text="${r.id}"></td>
+                        <td>
+                            <span class="score-tag" th:text="${r.score}"></span>
+                        </td>
+                        <td th:text="${r.mainMuscle}"></td>
+                        <td th:text="${r.synergyMuscles}"></td>
+                        <td class="remark-cell" th:text="${r.remark}"></td>
+                        <td class="time-cell" th:text="${r.createdAt}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
 
-<script src="/js/analysis.js"></script>
+<script th:src="@{/js/analysis.js}"></script>
 </body>
 </html>
